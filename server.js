@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const productRoutes = require("./api/routes/products");
 const orderRoutes = require("./api/routes/orders");
 
-const dbURL ="mongodb://localhost:27017/sunday"
+const dbURL = "mongodb://localhost:27017/sunday";
 
 mongoose
   .connect(dbURL, {
@@ -21,7 +21,7 @@ mongoose
   });
 
 app.use(morgan("dev"));
-
+app.use("/uploads", express.static("uploads"));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
@@ -52,7 +52,7 @@ app.use((req, res, next) => {
 });
 
 app.use((error, req, res, next) => {
-  res.status(error.status || 5000);
+  res.status(error.status || 500);
   res.json({
     error: {
       message: error.message

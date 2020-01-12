@@ -1,13 +1,39 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "./uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, new Date().getTime() + "-" + file.originalname);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 1024 * 1024 * 4
+  },
+  // only accept jpeg and png images
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
+      cb(null, true);
+    } else {
+      cb(null, false);
+    }
+  }
+});
+// const upload = multer({ dest: "./uploads/" });
 
 const Product = require("../models/product");
 
 // to send all the product
 router.get("/", (req, res, next) => {
   Product.find()
-    .select("name price _id")
+    .select("name price _id productImage")
     .then(docs => {
       const response = {
         count: docs.length,
@@ -15,6 +41,7 @@ router.get("/", (req, res, next) => {
           return {
             name: doc.name,
             price: doc.price,
+            productImage: doc.productImage,
             _id: doc._id,
             request: {
               type: "GET",
@@ -41,11 +68,14 @@ router.get("/", (req, res, next) => {
 });
 
 // to add a new Product
-router.post("/", (req, res, next) => {
+router.post("/", upload.single("productImage"), (req, res, next) => {
+  console.log(req.file);
+
   const product = new Product({
     _id: new mongoose.Types.ObjectId(),
     name: req.body.name,
-    price: req.body.price
+    price: req.body.price,
+    productImage: req.file.path
   });
   product
     .save()
@@ -77,7 +107,7 @@ router.get("/:productId", (req, res, next) => {
   const id = req.params.productId;
   console.log(id);
   Product.findById(id)
-    .select("price name _id")
+    .select("price name _id productImage")
     .then(doc => {
       console.log("DOC : ", doc);
       if (doc) {
