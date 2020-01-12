@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+const checkAuth = require("../middlewares/check-auth");
 
 const Order = require("../models/order");
 const Product = require("../models/product");
@@ -36,7 +37,7 @@ router.get("/", (req, res, next) => {
 });
 
 // add a new Order
-router.post("/", (req, res, next) => {
+router.post("/", checkAuth, (req, res, next) => {
   Product.findById(req.body.productId)
     .then(product => {
       console.log(product);
@@ -105,8 +106,8 @@ router.get("/:orderId", (req, res, next) => {
 });
 
 // delete a order
-router.delete("/:orderId", (req, res, next) => {
-  Order.remove({ _id: req.params.orderId })
+router.delete("/:orderId", checkAuth, (req, res, next) => {
+  Order.deleteOne({ _id: req.params.orderId })
     .then(result => {
       res.json({
         message: "Order Deleted",
