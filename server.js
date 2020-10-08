@@ -7,7 +7,7 @@ const productRoutes = require("./api/routes/products");
 const orderRoutes = require("./api/routes/orders");
 const userRoutes = require("./api/routes/user");
 
-const dbURL = "mongodb://localhost:27017/sunday";
+const dbURL = "mongodb://localhost:27017/test";
 
 mongoose
   .connect(dbURL, {
